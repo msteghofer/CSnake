@@ -3,6 +3,7 @@
 import csnUtility
 import csnDependencies
 import csnProjectPaths
+import csnProjectRegistry
 import csnInstall
 import csnCompile
 import csnTests
@@ -13,24 +14,32 @@ import new
 
 globalCurrentContext = None
 
+def FindFilename():
+    filename = inspect.stack()[2][1]
+    #print filename
+    if filename == "<string>":
+        filename = csnProjectRegistry.filenameGlobal[-1]
+    #print 'csn-file: "%s"' % filename
+    return filename
+
 def Project(_name, _type, _sourceRootFolder = None, _categories = None):
     if _sourceRootFolder is None:
-        _sourceRootFolder = csnUtility.NormalizePath(os.path.dirname(inspect.stack()[1][1]))
+        _sourceRootFolder = csnUtility.NormalizePath(os.path.dirname(FindFilename()))
     return globalCurrentContext.CreateProject(_name, _type, _sourceRootFolder, _categories)
 
 def Dll(_name, _sourceRootFolder = None, _categories = None):
     if _sourceRootFolder is None:
-        _sourceRootFolder = csnUtility.NormalizePath(os.path.dirname(inspect.stack()[1][1]))
+        _sourceRootFolder = csnUtility.NormalizePath(os.path.dirname(FindFilename()))
     return Project(_name, "dll", _sourceRootFolder, _categories)
 
 def Library(_name, _sourceRootFolder = None, _categories = None):
     if _sourceRootFolder is None:
-        _sourceRootFolder = csnUtility.NormalizePath(os.path.dirname(inspect.stack()[1][1]))
+        _sourceRootFolder = csnUtility.NormalizePath(os.path.dirname(FindFilename()))
     return Project(_name, "library", _sourceRootFolder, _categories)
 
 def Executable(_name, _sourceRootFolder = None, _categories = None):
     if _sourceRootFolder is None:
-        _sourceRootFolder = csnUtility.NormalizePath(os.path.dirname(inspect.stack()[1][1]))
+        _sourceRootFolder = csnUtility.NormalizePath(os.path.dirname(FindFilename()))
     return Project(_name, "executable", _sourceRootFolder, _categories)
 
 class Rule:
@@ -89,7 +98,7 @@ class GenericProject(object):
         self.name = _name
         self.type = _type
         if _sourceRootFolder is None:
-            _sourceRootFolder = csnUtility.NormalizePath(os.path.dirname(inspect.stack()[1][1]))
+            _sourceRootFolder = csnUtility.NormalizePath(os.path.dirname(FindFilename()))
         self.pathsManager = csnProjectPaths.Manager(self, _sourceRootFolder)
 
         # Get the thirdPartyBuildFolder index
