@@ -15,7 +15,16 @@ import new
 globalCurrentContext = None
 
 def FindFilename():
-    filename = inspect.stack()[2][1]
+    frame = inspect.currentframe(2)
+    try:
+        if frame is None:
+            # inspect.currentframe is not available with all python interpreters, so use inspect.stack as fallback option
+            filename = inspect.stack()[2][1]
+        else:
+            filename = inspect.getframeinfo(frame)[0]
+    finally:
+        # make sure the reference to the frame is deleted in any case (avoid cycles, see http://docs.python.org/library/inspect.html#the-interpreter-stack)
+        del frame
     #print filename
     if filename == "<string>":
         filename = csnProjectRegistry.filenameGlobal[-1]
